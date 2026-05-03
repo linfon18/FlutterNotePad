@@ -23,7 +23,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
       
       - name: Get dependencies
@@ -57,7 +56,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
       
       - name: Get dependencies
@@ -85,7 +83,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
       
       - name: Install Linux dependencies
@@ -118,7 +115,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
       
       - name: Get dependencies
@@ -130,7 +126,7 @@ jobs:
       - name: Package macOS
         run: |
           cd build/macos/Build/Products/Release
-          zip -r ../../../../../FlutterNotePad-macOS.zip FlutterNotePad.app
+          zip -r ../../../../../FlutterNotePad-macOS.zip *.app
       
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
@@ -146,7 +142,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
       
       - name: Get dependencies
