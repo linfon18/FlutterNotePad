@@ -58,34 +58,28 @@ jobs:
         with:
           channel: 'stable'
       
-      - name: Generate keystore
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
-          else
-            # Generate temporary keystore for unsigned builds
-            keytool -genkey -v -keystore android/app/release.keystore -alias flutternotepad -keyalg RSA -keysize 2048 -validity 10000 -storepass flutternotepad -keypass flutternotepad -dname "CN=linfon18, OU=Loft Games, O=Loft Games, L=Unknown, ST=Unknown, C=CN"
-          fi
-      
       - name: Get dependencies
         run: flutter pub get
       
+      - name: Generate keystore
+        working-directory: android/app
+        run: |
+          keytool -genkey -v -keystore release.keystore -alias flutternotepad -keyalg RSA -keysize 2048 -validity 10000 -storepass flutternotepad -keypass flutternotepad -dname "CN=linfon18, OU=Loft Games, O=Loft Games, L=Unknown, ST=Unknown, C=CN"
+      
       - name: Build Android APK
         env:
-          KEYSTORE_PATH: release.keystore
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'flutternotepad' }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'flutternotepad' }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'flutternotepad' }}
+          KEYSTORE_PATH: android/app/release.keystore
+          KEYSTORE_PASSWORD: flutternotepad
+          KEY_ALIAS: flutternotepad
+          KEY_PASSWORD: flutternotepad
         run: flutter build apk --release
       
       - name: Build Android AppBundle
         env:
-          KEYSTORE_PATH: release.keystore
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'flutternotepad' }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'flutternotepad' }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'flutternotepad' }}
+          KEYSTORE_PATH: android/app/release.keystore
+          KEYSTORE_PASSWORD: flutternotepad
+          KEY_ALIAS: flutternotepad
+          KEY_PASSWORD: flutternotepad
         run: flutter build appbundle --release
       
       - name: Upload Android artifacts
