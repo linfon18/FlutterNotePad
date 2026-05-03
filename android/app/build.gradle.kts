@@ -31,7 +31,7 @@ android {
         create("release") {
             keyAlias = System.getenv("KEY_ALIAS") ?: "flutternotepad"
             keyPassword = System.getenv("KEY_PASSWORD") ?: "flutternotepad"
-            storeFile = rootProject.file(System.getenv("KEYSTORE_PATH") ?: "app/release.keystore")
+            storeFile = file("release.keystore")
             storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "flutternotepad"
         }
     }
