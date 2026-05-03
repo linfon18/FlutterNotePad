@@ -1,0 +1,24 @@
+name: flutter_notepad
+description: "A beautiful cross-platform Notepad by linfon18 @ Loft Games"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  file_selector: ^1.0.3
+  path_provider: ^2.1.4
+  window_manager: ^0.4.3
+  shared_preferences: ^2.3.3
+  flutter_markdown: ^0.7.4
+  markdown: ^7.3.0
+  fast_gbk: ^1.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/

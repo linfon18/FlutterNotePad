@@ -1,0 +1,228 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build Windows
+        run: flutter build windows --release
+      
+      - name: Package Windows
+        run: |
+          cd build\windows\x64\runner\Release
+          7z a ..\..\..\..\..\FlutterNotePad-Windows-x64.zip *
+      
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: FlutterNotePad-Windows-x64.zip
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build Android APK
+        run: flutter build apk --release
+      
+      - name: Build Android AppBundle
+        run: flutter build appbundle --release
+      
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libgtk-3-dev
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build Linux
+        run: flutter build linux --release
+      
+      - name: Package Linux
+        run: |
+          cd build/linux/x64/release/bundle
+          tar czf ../../../../../FlutterNotePad-Linux-x64.tar.gz *
+      
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: FlutterNotePad-Linux-x64.tar.gz
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build macOS
+        run: flutter build macos --release
+      
+      - name: Package macOS
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r ../../../../../FlutterNotePad-macOS.zip FlutterNotePad.app
+      
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: FlutterNotePad-macOS.zip
+
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build Web
+        run: flutter build web --release
+      
+      - name: Package Web
+        run: |
+          cd build/web
+          zip -r ../../FlutterNotePad-Web.zip *
+      
+      - name: Upload Web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: FlutterNotePad-Web.zip
+
+  create-release:
+    needs: [build-windows, build-android, build-linux, build-macos, build-web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          name: FlutterNotePad v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## FlutterNotePad v${{ steps.get_version.outputs.VERSION }}
+            
+            跨平台轻量级文本编辑器
+            
+            ### 下载
+            - **Windows x64**: FlutterNotePad-Windows-x64.zip
+            - **Android APK**: app-release.apk
+            - **Android AppBundle**: app-release.aab
+            - **Linux x64**: FlutterNotePad-Linux-x64.tar.gz
+            - **macOS**: FlutterNotePad-macOS.zip
+            - **Web**: FlutterNotePad-Web.zip
+            
+            ### 功能特性
+            - 📝 跨平台文本编辑器
+            - 🎨 自定义主题色和背景图片
+            - 🌓 深色/浅色/自动主题切换
+            - 📄 Markdown 预览和分屏编辑
+            - 🔍 文本查找功能
+            - 🪵 日志文件语法高亮
+            - 📊 JSON 格式化、压缩、验证
+            - 🔷 C# 语法高亮支持
+            - 🌐 多编码支持
+            
+            ### 开发者
+            linfon18 @ Loft Games
+          files: |
+            artifacts/windows-build/FlutterNotePad-Windows-x64.zip
+            artifacts/android-build/app-release.apk
+            artifacts/android-build/app-release.aab
+            artifacts/linux-build/FlutterNotePad-Linux-x64.tar.gz
+            artifacts/macos-build/FlutterNotePad-macOS.zip
+            artifacts/web-build/FlutterNotePad-Web.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
