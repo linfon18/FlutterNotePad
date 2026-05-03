@@ -62,9 +62,8 @@ jobs:
         run: flutter pub get
       
       - name: Generate keystore
-        working-directory: android/app
         run: |
-          keytool -genkey -v -keystore release.keystore -alias flutternotepad -keyalg RSA -keysize 2048 -validity 10000 -storepass flutternotepad -keypass flutternotepad -dname "CN=linfon18, OU=Loft Games, O=Loft Games, L=Unknown, ST=Unknown, C=CN"
+          keytool -genkey -v -keystore android/app/release.keystore -alias flutternotepad -keyalg RSA -keysize 2048 -validity 10000 -storepass flutternotepad -keypass flutternotepad -dname "CN=linfon18, OU=Loft Games, O=Loft Games, L=Unknown, ST=Unknown, C=CN"
       
       - name: Build Android APK
         env:

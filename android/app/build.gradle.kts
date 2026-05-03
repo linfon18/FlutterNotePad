@@ -29,10 +29,10 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = System.getenv("KEY_ALIAS") ?: ""
-            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
-            storeFile = file(System.getenv("KEYSTORE_PATH") ?: "release.keystore")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("KEY_ALIAS") ?: "flutternotepad"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "flutternotepad"
+            storeFile = rootProject.file(System.getenv("KEYSTORE_PATH") ?: "app/release.keystore")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "flutternotepad"
         }
     }
 
